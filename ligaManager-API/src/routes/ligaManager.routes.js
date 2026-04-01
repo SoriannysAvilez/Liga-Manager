@@ -1,8 +1,27 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-const { getLeaderboard } = require('../controllers/ligaManager.controllers');
+const ligaManagerControlle = require('../controllers/ligaManager.controllers')
 
-router.get('/leaderboard', getLeaderboard);
+// ==================== GET ====================
+
+// Equipos
+router.get('/equipos', ligaManagerControlle.getEquipos);
+
+// Partidos
+router.get('/partidos', ligaManagerControlle.getPartidos);
+
+// Tabla de posiciones
+router.get('/tabla-posiciones', ligaManagerControlle.getTablaPosiciones);
+
+
+// ==================== PUT ====================
+
+// Actualizar goles
+router.put('/partidos/:id/goles', ligaManagerControlle.updateGoles);
+
+// Cambiar estado
+router.put('/partidos/:id/estado', ligaManagerControlle.updateEstado);
+
 
 module.exports = router;
