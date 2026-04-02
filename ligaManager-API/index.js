@@ -5,5 +5,5 @@ const app = require('./app')
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
-    console.log(`API Liga de Manager corriendo en: http:??localhost: ${PORT}`)
+    console.log(`API corriendo en: http://localhost:${PORT}`)
 })
