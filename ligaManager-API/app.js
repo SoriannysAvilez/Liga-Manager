@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const ligaManagerRoutes = require('./routes/ligaManager.routes');
+const ligaManagerRoutes = require('./src/routes/ligaManager.routes');
 
 const app = express();
 
