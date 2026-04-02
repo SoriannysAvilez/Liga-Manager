@@ -1,36 +1,36 @@
 ---
+// index.astro
 import Layout from '../layouts/Layout.astro';
 import TablaEquipos from '../components/TablaEquipos.astro';
 import TablaPartidos from '../components/TablaPartidos.astro';
 import TablaPosiciones from '../components/TablaPosiciones.astro';
 
-const equipos = await fetch('http://localhost:3000/api/teams').then(r => r.json());
-const partidos = await fetch('http://localhost:3000/api/matches').then(r => r.json());
-const tabla = await fetch('http://localhost:3000/api/leaderboard').then(r => r.json());
+const equipos = await fetch('http://localhost:3000/api/equipos').then(r => r.json());
+const partidos = await fetch('http://localhost:3000/api/partidos').then(r => r.json());
+const tabla = await fetch('http://localhost:3000/api/tabla-posiciones').then(r => r.json());
 ---
 
-<Layout>
+<Layout title="Dashboard - Liga Manager">
+  <h1 class="text-3xl font-bold mb-8 text-center text-white">
+    Dashboard Liga ⚽
+  </h1>
 
-<h1 class="text-3xl font-bold mb-6 text-center">
-  Dashboard Liga ⚽
-</h1>
+  <div class="grid gap-8">
+    <section class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+      <h2 class="text-xl font-bold mb-4 text-indigo-400">Tabla de Posiciones</h2>
+      <TablaPosiciones tabla={tabla} />
+    </section>
 
-<!-- EQUIPOS -->
-<section class="mb-8 bg-white p-4 rounded shadow">
-  <h2 class="text-xl font-bold mb-2">Equipos</h2>
-  <TablaEquipos equipos={equipos} />
-</section>
+    <div class="grid md:grid-cols-2 gap-8">
+      <section class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+        <h2 class="text-xl font-bold mb-4 text-indigo-400">Equipos</h2>
+        <TablaEquipos equipos={equipos} />
+      </section>
 
-<!-- PARTIDOS -->
-<section class="mb-8 bg-white p-4 rounded shadow">
-  <h2 class="text-xl font-bold mb-2">Partidos</h2>
-  <TablaPartidos partidos={partidos} />
-</section>
-
-<!-- TABLA POSICIONES -->
-<section class="bg-white p-4 rounded shadow">
-  <h2 class="text-xl font-bold mb-2">Tabla de Posiciones</h2>
-  <TablaPosiciones tabla={tabla} />
-</section>
-
+      <section class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+        <h2 class="text-xl font-bold mb-4 text-indigo-400">Últimos Partidos</h2>
+        <TablaPartidos partidos={partidos} />
+      </section>
+    </div>
+  </div>
 </Layout>
