@@ -2,9 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 
 interface Partido {
-  id_partido: number;
-  id_equipoLocal: number;
-  id_equipoVisitante: number;
+  id: number;          // Cambiado de id_partido a id
+  local: string;       // Cambiado de id_equipoLocal a local (nombre)
+  visitante: string;   // Cambiado de id_equipoVisitante a visitante (nombre)
   goles_local: number;
   goles_visitante: number;
   estado: string;
@@ -16,19 +16,20 @@ const partidos: Partido[] = await response.json();
 
 <Layout title="Administración de Liga">
   <main class="max-w-5xl mx-auto p-6">
-    <h1 class="text-3xl font-bold text-white mb-8 text-center">Panel de Control: Partidos</h1>
+    <h1 class="text-3xl font-bold text-lime-500 mb-8 text-center"> 📝 Panel de Control: Partidos ⚽</h1>
 
     <div class="grid gap-6">
       {partidos.map((p) => (
         <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
           
           <div class="flex-1">
-            <span class="text-xs font-mono text-indigo-400 uppercase tracking-widest block mb-1">ID: {p.id_partido}</span>
+            <span class="text-md font-mono text-indigo-400 uppercase tracking-widest block mb-1">ID: {p.id}</span>
             <div class="flex items-center gap-3 text-white font-bold text-lg">
-              <span>{p.id_equipoLocal}</span> <span class="text-slate-500 font-normal">vs</span>
-              <span>{p.id_equipoVisitante}</span>
+              <span>{p.local}</span> 
+              <span class="text-slate-500 font-normal">vs</span>
+              <span>{p.visitante}</span>
             </div>
-            <p class="text-slate-400 text-sm mt-1">Estado actual: 
+            <p class="text-slate-400 text-md mt-1">Estado actual: 
               <span class={`font-bold ${p.estado === 'jugado' ? 'text-green-400' : 'text-yellow-400'}`}>
                 {p.estado}
               </span>
@@ -40,8 +41,9 @@ const partidos: Partido[] = await response.json();
               <label class="text-[10px] text-slate-500 uppercase mb-1">Local</label>
               <input 
                 type="number" 
+                min="0"
                 value={p.goles_local} 
-                id={`local-${p.id_partido}`}
+                id={`local-${p.id}`} 
                 class="w-16 bg-slate-800 border border-slate-600 text-white text-center rounded py-1 focus:border-indigo-500 outline-none"
               />
             </div>
@@ -52,8 +54,9 @@ const partidos: Partido[] = await response.json();
               <label class="text-[10px] text-slate-500 uppercase mb-1">Visita</label>
               <input 
                 type="number" 
+                min="0"
                 value={p.goles_visitante} 
-                id={`visita-${p.id_partido}`}
+                id={`visita-${p.id}`}
                 class="w-16 bg-slate-800 border border-slate-600 text-white text-center rounded py-1 focus:border-indigo-500 outline-none"
               />
             </div>
@@ -61,7 +64,7 @@ const partidos: Partido[] = await response.json();
             <div class="flex flex-col ml-2">
               <label class="text-[10px] text-slate-500 uppercase mb-1">Estado</label>
               <select 
-                id={`estado-${p.id_partido}`}
+                id={`estado-${p.id}`}
                 class="bg-slate-800 border border-slate-600 text-white text-xs rounded py-1.5 px-2 outline-none"
               >
                 <option value="pendiente" selected={p.estado === 'pendiente'}>Pendiente</option>
@@ -72,8 +75,8 @@ const partidos: Partido[] = await response.json();
           </div>
 
           <button 
-            class="update-btn bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-bold transition-all active:scale-95"
-            data-id={p.id_partido}
+            class="update-btn bg-lime-500 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-bold transition-all active:scale-95"
+            data-id={p.id}
           >
             Actualizar
           </button>
@@ -84,40 +87,41 @@ const partidos: Partido[] = await response.json();
 </Layout>
 
 <script>
+  // El script permanece igual, solo asegúrate de que use 'data-id' correctamente
   const buttons = document.querySelectorAll('.update-btn');
 
   buttons.forEach(button => {
     button.addEventListener('click', async () => {
       const matchId = button.getAttribute('data-id');
-      
-      // Corregimos el nombre del ID para que coincida con el HTML (visita-${matchId})
-      const golesLocalInput = document.getElementById(`local-${matchId}`) as HTMLInputElement;
-      const golesVisitaInput = document.getElementById(`visita-${matchId}`) as HTMLInputElement;
-      const estadoSelect = document.getElementById(`estado-${matchId}`) as HTMLSelectElement;
+      const golesLocalValue = parseInt((document.getElementById(`local-${matchId}`) as HTMLInputElement).value);
+      const golesVisitaValue = parseInt((document.getElementById(`visita-${matchId}`) as HTMLInputElement).value);
 
-      if (!golesLocalInput || !golesVisitaInput || !estadoSelect) return;
+  // VALIDACIÓN: Si alguno es menor a 0, detenemos el proceso
+  if (golesLocalValue < 0 || golesVisitaValue < 0) {
+    alert('❌ Los goles no pueden ser números negativos.');
+    return;
+  }
 
-      try {
-        const response = await fetch(`http://localhost:3000/api/partidos/${matchId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            goles_local: parseInt(golesLocalInput.value),
-            goles_visitante: parseInt(golesVisitaInput.value),
-            estado: estadoSelect.value
-          })
-        });
-
-        const data = await response.json();
+  // Si todo está bien, procedemos con el fetch...
+  try {
+    const response = await fetch(`http://localhost:3000/api/partidos/${matchId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        goles_local: golesLocalValue,
+        goles_visitante: golesVisitaValue,
+        estado: (document.getElementById(`estado-${matchId}`) as HTMLSelectElement).value
+      })
+    });
 
         if (response.ok) {
           alert('✅ Partido actualizado correctamente.');
           window.location.reload(); 
         } else {
+          const data = await response.json();
           alert('❌ Error: ' + data.message);
         }
       } catch (error) {
-        console.error('Error al conectar con la API:', error);
         alert('No se pudo conectar con el servidor.');
       }
     });
