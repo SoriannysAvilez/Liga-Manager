@@ -3,37 +3,42 @@ const { poolPromise, sql } = require('../config/db');
 
 //LOGICA PARA LISTAR EQUIPOS(read)
 const getEquipos = async(req, res) => {
-
-    try{
-        const pool= await poolPromise;
+    try {
+        const pool = await poolPromise;
         const result = await pool
-        .request()
-        .query('SELECT * FROM Equipos ORDER BY nombre ASC')
+            .request()
+            // CAMBIA 'nombre' por 'id_equipo'
+            .query('SELECT * FROM Equipos ORDER BY id_equipo ASC') 
         res.json(result.recordset)
-    }catch(error){
-        res
-        .status(500)
-        .json({ message: 'Error en el servidor', error: error.message })
+    } catch(error) {
+        res.status(500).json({ message: 'Error en el servidor', error: error.message })
     }
 }
 
 //LOGICA PARA LISTAR PARTIDOS
-const getPartidos = async(req, res) => {
-
-    try{
-        const pool= await poolPromise;
-        const result = await pool
-        .request()
-        .query('SELECT * FROM Partidos ORDER BY fecha ASC')
-        res.json(result.recordset)
-    }catch(error){
-        res
-        .status(500)
-        .json({ message: 'Error en el servidor', error: error.message })
+const getPartidos = async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request().query(`
+            SELECT 
+                p.id_partido AS id, 
+                el.nombre AS local, 
+                el.logo AS logo_local, 
+                ev.nombre AS visitante, 
+                ev.logo AS logo_visitante, 
+                p.goles_local, 
+                p.goles_visitante, 
+                p.fecha,
+                p.estado 
+            FROM Partidos p
+            LEFT JOIN Equipos el ON p.id_equipoLocal = el.id_equipo  
+            LEFT JOIN Equipos ev ON p.id_equipoVisitante = ev.id_equipo 
+        `);
+        res.json(result.recordset);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener partidos", error: error.message });
     }
-}
-
-const { getConnection } = require('../config/db');
+};
 
 
 //LOGICA PARA LISTAR TABLA DE POSICIONES
@@ -44,12 +49,8 @@ const getTablaPosiciones = async (req, res) => {
         const result = await pool
             .request()
             .query(`
-                SELECT * 
-                FROM TablaPosiciones
-                ORDER BY 
-                    PTS DESC, 
-                    DG DESC, 
-                    GF DESC
+                SELECT nombre, logo, PJ, PG, PE, PP, PTS 
+                FROM dbo.TablaPosiciones ORDER BY PTS DESC
             `);
 
         res.json(result.recordset);

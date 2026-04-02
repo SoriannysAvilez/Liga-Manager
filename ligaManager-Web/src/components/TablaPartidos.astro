@@ -1,48 +1,78 @@
 ---
-// 1. Definimos la estructura de un Partido
 interface Partido {
   id: number;
   local: string;
+  logo_local: string;
   visitante: string;
+  logo_visitante: string;
   goles_local: number;
   goles_visitante: number;
+  fecha: string;
   estado: string;
 }
 
-// 2. Definimos que las Props esperan un array de esa estructura
 interface Props {
   partidos: Partido[];
 }
 
 const { partidos } = Astro.props;
+
+const formatearFecha = (fechaStr: string) => {
+  if (!fechaStr) return "---";
+  
+  // Creamos el objeto fecha
+  const fecha = new Date(fechaStr);
+  
+  // Usamos el locale 'es-ES' para asegurar el orden día/mes/año
+  return fecha.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric' // Esto añade el año (ej: 2026)
+  });
+};
 ---
 
-<div class="overflow-hidden rounded-xl border border-slate-700 shadow-lg mb-6">
-  <table class="w-full text-left border-collapse bg-slate-800">
+<div class="overflow-hidden rounded-xl border border-slate-800 shadow-xl">
+  <table class="w-full text-center border-collapse bg-slate-900/20">
     <thead>
-      <tr class="bg-slate-900 border-b border-slate-700">
-        <th class="py-4 px-6 font-bold text-indigo-400">ID</th>
-        <th class="py-4 px-6 font-bold text-indigo-400">Local</th>
-        <th class="py-4 px-6 font-bold text-indigo-400">Visitante</th>
-        <th class="py-4 px-6 font-bold text-indigo-400 text-center">Resultado</th>
-        <th class="py-4 px-6 font-bold text-indigo-400 text-center">Estado</th>
+      <tr class= "bg-lime-500">
+        <th class="py-3 px-4 font-bold text-black text-[13px] uppercase">ID</th>
+        <th class="py-3 px-4 font-bold text-black text-[13px] uppercase text-center">Fecha</th>
+        <th class="py-3 px-4 font-bold text-black text-[13px] uppercase">Local</th>
+        <th class="py-3 px-2 font-bold text-black text-center text-[13px] uppercase">G.L</th>
+        <th class="py-3 px-2 font-bold text-black text-center text-[13px] uppercase">G.V</th>
+        <th class="py-3 px-4 font-bold text-black text-[13px] uppercase">Visitante</th>
+        <th class="py-3 px-4 font-bold text-black text-center text-[13px] uppercase">Estado</th>
       </tr>
     </thead>
     
-    <tbody>
+    <tbody class="divide-y divide-slate-800">
       {partidos.map((p) => (
-        <tr class="border-b border-slate-700 hover:bg-indigo-600/10 transition-colors duration-300">
-          <td class="py-4 px-6 text-slate-400 font-mono">{p.id}</td>
-          <td class="py-4 px-6 text-white font-semibold">{p.local}</td>
-          <td class="py-4 px-6 text-white font-semibold">{p.visitante}</td>
-          <td class="py-4 px-6 text-center">
-            <span class="bg-slate-900 text-indigo-300 py-1 px-3 rounded-lg font-bold border border-indigo-500/30">
-              {p.goles_local} - {p.goles_visitante}
-            </span>
+        <tr class="hover:bg-indigo-500/5 transition-colors">
+          <td class="py-3 px-4 text-white font-mono text-xs">{p.id}</td>
+          <td class="py-3 px-4 text-white text-xs text-center">{formatearFecha(p.fecha)}</td>
+          
+          <td class="py-3 px-4 text-white font-medium text-sm flex items-center gap-2">
+            <img src={p.logo_local} alt="" class="w-6 h-6 object-contain" onerror="this.style.display='none'"/>
+            {p.local}
           </td>
-          <td class="py-4 px-6 text-center">
-             <span class={`text-xs uppercase tracking-wider px-2 py-1 rounded-full font-bold ${
-               p.estado === 'Finalizado' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+          
+          <td class="py-3 px-2 text-center">
+            <span class="bg-slate-950 text-emerald-400 py-1 px-2 rounded border border-emerald-500/20 font-bold">{p.goles_local}</span>
+          </td>
+          
+          <td class="py-3 px-2 text-center">
+            <span class="bg-slate-950 text-emerald-400 py-1 px-2 rounded border border-emerald-500/20 font-bold">{p.goles_visitante}</span>
+          </td>
+
+          <td class="py-3 px-4 text-white font-medium text-sm flex items-center gap-2">
+            <img src={p.logo_visitante} alt="" class="w-6 h-6 object-contain" onerror="this.style.display='none'"/>
+            {p.visitante}
+          </td>
+
+          <td class="py-3 px-4 text-center">
+             <span class={`text-[9px] uppercase px-2 py-1 rounded-full border font-bold ${
+               p.estado === 'jugado' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
              }`}>
                {p.estado}
              </span>

@@ -1,0 +1,25 @@
+---
+// src/components/Navbar.astro
+---
+<nav class="bg-slate-800 border-b border-slate-700 p-4 mb-6 shadow-md">
+  <div class="max-w-6xl mx-auto flex justify-between items-center">
+    
+    <h1 class="font-bold text-white flex flex-col items-end leading-none">
+      <span class="text-2xl flex items-center gap-2">
+        LIGA MANAGER ⚽
+      </span>
+      <span class="text-[15px] uppercase tracking-[0.3em] text-lime-500 font-black pr-1">
+        Fútbol
+      </span>
+    </h1>
+
+    <div class="flex gap-6 items-center">
+      <a href="/" class="text-white hover:text-lime-500 font-medium transition-colors">
+        INICIO
+      </a>
+      <a href="/admin" class="bg-lime-500 hover:bg-green-300 text-black px-4 py-2 rounded-lg font-bold transition-all active:scale-95 shadow-lg shadow-indigo-500/20">
+        ADMIN
+      </a>
+    </div>
+  </div>
+</nav>

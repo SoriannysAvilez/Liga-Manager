@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css'; 
+
 // Layout.astro
 import Navbar from '../components/Navbar.astro';
 
@@ -16,14 +18,14 @@ const { title = "Liga Manager" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     </head>
-  <body class="bg-slate-900 text-slate-100 min-h-screen">
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
     <Navbar />
     
     <main class="max-w-6xl mx-auto p-4 md:p-8">
       <slot />
     </main>
 
-    <footer class="text-center py-8 text-slate-500 text-sm border-t border-slate-800 mt-12">
+    <footer class="text-center py-3 bg-lime-700 text-md border-t border-slate-800 mt-4">
       &copy; {new Date().getFullYear()} - Liga Manager Pro
     </footer>
   </body>

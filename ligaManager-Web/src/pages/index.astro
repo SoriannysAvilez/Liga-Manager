@@ -5,30 +5,47 @@ import TablaEquipos from '../components/TablaEquipos.astro';
 import TablaPartidos from '../components/TablaPartidos.astro';
 import TablaPosiciones from '../components/TablaPosiciones.astro';
 
-const equipos = await fetch('http://localhost:3000/api/equipos').then(r => r.json());
-const partidos = await fetch('http://localhost:3000/api/partidos').then(r => r.json());
-const tabla = await fetch('http://localhost:3000/api/tabla-posiciones').then(r => r.json());
+async function getData(url: string) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return []; 
+    return await response.json();
+  } catch (error) {
+    console.error(`Error en fetch a ${url}:`, error);
+    return []; 
+  }
+}
+
+const equipos = await getData('http://localhost:3000/api/equipos');
+const partidos = await getData('http://localhost:3000/api/partidos');
+const tabla = await getData('http://localhost:3000/api/tabla-posiciones');
 ---
 
-<Layout title="Dashboard - Liga Manager">
+<Layout title="Liga Manager">
   <h1 class="text-3xl font-bold mb-8 text-center text-white">
-    Dashboard Liga ⚽
+    🏆 Liga de Campeones 🏆
   </h1>
 
   <div class="grid gap-8">
-    <section class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-      <h2 class="text-xl font-bold mb-4 text-indigo-400">Tabla de Posiciones</h2>
+    <section class="bg-slate-900/40 p-6 rounded-xl shadow-lg border border-slate-800">
+      <h2 class="text-xl font-bold mb-6 text-red-600 text-center uppercase tracking-widest">
+        Tabla de Posiciones
+      </h2>
       <TablaPosiciones tabla={tabla} />
     </section>
 
-    <div class="grid md:grid-cols-2 gap-8">
-      <section class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-        <h2 class="text-xl font-bold mb-4 text-indigo-400">Equipos</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <section class="lg:col-span-4 bg-slate-900/40 p-6 rounded-xl shadow-lg border border-slate-800">
+        <h2 class="text-xl font-bold mb-4 text-white text-center uppercase tracking-wider">
+          Equipos
+        </h2>
         <TablaEquipos equipos={equipos} />
       </section>
 
-      <section class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
-        <h2 class="text-xl font-bold mb-4 text-indigo-400">Últimos Partidos</h2>
+      <section class="lg:col-span-8 bg-slate-900/40 p-6 rounded-xl shadow-lg border border-slate-800">
+        <h2 class="text-xl font-bold mb-4 text-white text-center uppercase tracking-wider">
+          Calendario de Partidos
+        </h2>
         <TablaPartidos partidos={partidos} />
       </section>
     </div>

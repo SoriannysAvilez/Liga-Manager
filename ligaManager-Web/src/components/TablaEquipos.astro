@@ -1,0 +1,46 @@
+---
+// 1. Define qué campos tiene un Equipo para que TypeScript los reconozca
+interface Equipo {
+  id_equipo: number;
+  nombre: string;
+  logo: string;
+}
+
+interface Props {
+  equipos: Equipo[];
+}
+
+const { equipos } = Astro.props;
+---
+
+<div class="overflow-hidden rounded-xl border border-slate-800 shadow-xl bg-slate-900/20">
+  <table class="w-full text-left border-collapse">
+    <thead>
+      <tr class= "bg-lime-500">
+        <th class="py-3 px-4 font-bold text-black text-[13px] uppercase">ID</th>
+        <th class="py-3 px-4 font-bold text-black text-[13px] uppercase">Nombre del Equipo</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-800">
+      {equipos.map((e) => (
+        <tr class="hover:bg-indigo-500/5 transition-colors">
+          <td class="py-3 px-4 text-white font-mono text-xs">{e.id_equipo}</td>
+          <td class="py-3 px-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700">
+              {e.logo ? (
+                <img 
+                  src={e.logo} 
+                  alt={e.nombre} 
+                  class="w-full h-full object-contain p-1"
+                />
+              ) : (
+                <span class="text-[10px] text-slate-500">{e.nombre.substring(0, 2)}</span>
+              )}
+            </div>
+            <span class="text-white font-medium text-sm">{e.nombre}</span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
