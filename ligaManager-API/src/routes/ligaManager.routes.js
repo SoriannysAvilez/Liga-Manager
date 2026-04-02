@@ -1,27 +1,29 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 
-const ligaManagerControlle = require('../controllers/ligaManager.controllers')
+// Importamos las funciones del controlador mediante destructuring
+const { 
+    getEquipos, 
+    getPartidos, 
+    getTablaPosiciones, 
+    updateMatchResult 
+} = require('../controllers/ligaManager.controllers');
 
-// ==================== GET ====================
+// ==================== GET (Consultas) ====================
 
-// Equipos
-router.get('/equipos', ligaManagerControlle.getEquipos);
+// Obtener lista de todos los equipos
+router.get('/equipos', getEquipos);
 
-// Partidos
-router.get('/partidos', ligaManagerControlle.getPartidos);
+// Obtener lista de todos los partidos
+router.get('/partidos', getPartidos);
 
-// Tabla de posiciones
-router.get('/tabla-posiciones', ligaManagerControlle.getTablaPosiciones);
+// Obtener la tabla de posiciones (basada en el VIEW de SQL)
+router.get('/tabla-posiciones', getTablaPosiciones);
 
 
-// ==================== PUT ====================
+// ==================== PUT (Actualizaciones) ====================
 
-// Actualizar goles
-router.put('/partidos/:id/goles', ligaManagerControlle.updateGoles);
-
-// Cambiar estado
-router.put('/partidos/:id/estado', ligaManagerControlle.updateEstado);
-
+//Actualizar cualquier campo del partido(resultado se visualizan auto en tblaposi x el view)
+router.put('/partidos/:matchId', updateMatchResult);
 
 module.exports = router;

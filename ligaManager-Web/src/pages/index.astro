@@ -1,11 +1,36 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import TablaEquipos from '../components/TablaEquipos.astro';
+import TablaPartidos from '../components/TablaPartidos.astro';
+import TablaPosiciones from '../components/TablaPosiciones.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const equipos = await fetch('http://localhost:3000/api/teams').then(r => r.json());
+const partidos = await fetch('http://localhost:3000/api/matches').then(r => r.json());
+const tabla = await fetch('http://localhost:3000/api/leaderboard').then(r => r.json());
 ---
 
 <Layout>
-	<Welcome />
+
+<h1 class="text-3xl font-bold mb-6 text-center">
+  Dashboard Liga ⚽
+</h1>
+
+<!-- EQUIPOS -->
+<section class="mb-8 bg-white p-4 rounded shadow">
+  <h2 class="text-xl font-bold mb-2">Equipos</h2>
+  <TablaEquipos equipos={equipos} />
+</section>
+
+<!-- PARTIDOS -->
+<section class="mb-8 bg-white p-4 rounded shadow">
+  <h2 class="text-xl font-bold mb-2">Partidos</h2>
+  <TablaPartidos partidos={partidos} />
+</section>
+
+<!-- TABLA POSICIONES -->
+<section class="bg-white p-4 rounded shadow">
+  <h2 class="text-xl font-bold mb-2">Tabla de Posiciones</h2>
+  <TablaPosiciones tabla={tabla} />
+</section>
+
 </Layout>

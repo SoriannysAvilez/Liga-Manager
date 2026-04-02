@@ -1,0 +1,54 @@
+---
+// 1. Definimos la estructura de un Partido
+interface Partido {
+  id: number;
+  local: string;
+  visitante: string;
+  goles_local: number;
+  goles_visitante: number;
+  estado: string;
+}
+
+// 2. Definimos que las Props esperan un array de esa estructura
+interface Props {
+  partidos: Partido[];
+}
+
+const { partidos } = Astro.props;
+---
+
+<div class="overflow-hidden rounded-xl border border-slate-700 shadow-lg mb-6">
+  <table class="w-full text-left border-collapse bg-slate-800">
+    <thead>
+      <tr class="bg-slate-900 border-b border-slate-700">
+        <th class="py-4 px-6 font-bold text-indigo-400">ID</th>
+        <th class="py-4 px-6 font-bold text-indigo-400">Local</th>
+        <th class="py-4 px-6 font-bold text-indigo-400">Visitante</th>
+        <th class="py-4 px-6 font-bold text-indigo-400 text-center">Resultado</th>
+        <th class="py-4 px-6 font-bold text-indigo-400 text-center">Estado</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+      {partidos.map((p) => (
+        <tr class="border-b border-slate-700 hover:bg-indigo-600/10 transition-colors duration-300">
+          <td class="py-4 px-6 text-slate-400 font-mono">{p.id}</td>
+          <td class="py-4 px-6 text-white font-semibold">{p.local}</td>
+          <td class="py-4 px-6 text-white font-semibold">{p.visitante}</td>
+          <td class="py-4 px-6 text-center">
+            <span class="bg-slate-900 text-indigo-300 py-1 px-3 rounded-lg font-bold border border-indigo-500/30">
+              {p.goles_local} - {p.goles_visitante}
+            </span>
+          </td>
+          <td class="py-4 px-6 text-center">
+             <span class={`text-xs uppercase tracking-wider px-2 py-1 rounded-full font-bold ${
+               p.estado === 'Finalizado' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+             }`}>
+               {p.estado}
+             </span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

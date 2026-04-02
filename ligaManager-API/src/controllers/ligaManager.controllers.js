@@ -61,98 +61,74 @@ const getTablaPosiciones = async (req, res) => {
     }
 };
 
-//LOGICA PARA ACTUALIZAR GOLES (SOLO SI NO ESTA JUGADO)
-const updateGoles = async (req, res) => {
-    const { id } = req.params;
-    const { goles_local, goles_visitante } = req.body;
+//LOGICA PARA ACTUALIZAR GOLES (SOLO SI NO ESTA JUGADO) Y ESTADO
 
-    try {
-        const pool = await poolPromise;
+const updateMatchResult = async (req, res) => {
+  // Extraemos el ID de la URL (parámetros) y los datos del BODY
+  const { matchId } = req.params; 
+  const { goles_local, goles_visitante, estado } = req.body;
 
-        // Verificar estado del partido
-        const result = await pool.request()
-            .input('id', sql.Int, id)
-            .query('SELECT estado FROM Partidos WHERE id_partido = @id');
+  // Validación: Si no hay datos, no hacemos nada
+  if (goles_local === undefined && goles_visitante === undefined && !estado) {
+    return res.status(400).json({ message: 'No se enviaron datos para actualizar' });
+  }
 
-        if (result.recordset.length === 0) {
-            return res.status(404).json({ message: 'Partido no encontrado' });
-        }
+  try {
+    const pool = await poolPromise;
 
-        if (result.recordset[0].estado === 'jugado') {
-            return res.status(400).json({
-                message: 'No se puede modificar un partido finalizado'
-            });
-        }
+    // 1. Verificamos si el partido existe y su estado actual
+    const checkMatch = await pool.request()
+      .input('id', sql.Int, matchId)
+      .query('SELECT estado FROM Partidos WHERE id_partido = @id');
 
-        // Actualizar goles
-        await pool.request()
-            .input('id', sql.Int, id)
-            .input('goles_local', sql.Int, goles_local)
-            .input('goles_visitante', sql.Int, goles_visitante)
-            .query(`
-                UPDATE Partidos
-                SET goles_local = @goles_local,
-                    goles_visitante = @goles_visitante
-                WHERE id_partido = @id
-            `);
-
-        res.json({ message: 'Goles actualizados correctamente' });
-
-    } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor', error: error.message });
+    if (checkMatch.recordset.length === 0) {
+      return res.status(404).json({ message: 'Partido no encontrado' });
     }
+
+    // Si ya está 'jugado', podrías querer bloquear cambios (opcional)
+    if (checkMatch.recordset[0].estado === 'jugado' && estado === 'jugado') {
+       return res.status(400).json({ message: 'El partido ya está finalizado' });
+    }
+
+    // 2. Construcción del Query Dinámico
+    let updates = [];
+    const request = pool.request().input('id', sql.Int, matchId);
+
+    if (goles_local !== undefined) {
+      updates.push("goles_local = @gl");
+      request.input('gl', sql.Int, goles_local);
+    }
+    if (goles_visitante !== undefined) {
+      updates.push("goles_visitante = @gv");
+      request.input('gv', sql.Int, goles_visitante);
+    }
+    if (estado !== undefined) {
+      updates.push("estado = @est");
+      request.input('est', sql.VarChar, estado);
+    }
+
+    // Unimos los campos para el UPDATE
+    const query = `UPDATE Partidos SET ${updates.join(', ')} WHERE id_partido = @id`;
+
+    await request.query(query);
+
+    // 3. Respuesta exitosa
+    // Al consultar la VIEW 'TablaPosiciones' desde Astro, los cambios ya serán visibles
+    res.json({ 
+      message: 'Partido actualizado. La tabla de posiciones se ha recalculado automáticamente.',
+      updatedFields: { goles_local, goles_visitante, estado }
+    });
+
+  } catch (error) {
+    console.error("Error en SQL:", error);
+    res.status(500).json({ message: 'Error interno en el servidor', error: error.message });
+  }
 };
 
-//LOGICA PARA CAMBIAR ESTADO DEL PARTIDO
-const updateEstado = async (req, res) => {
-    const { id } = req.params;
-    const { estado } = req.body;
-
-    const estadosValidos = ['pendiente', 'en_juego', 'jugado'];
-
-    if (!estadosValidos.includes(estado)) {
-        return res.status(400).json({ message: 'Estado inválido' });
-    }
-
-    try {
-        const pool = await poolPromise;
-
-        // Verificar si ya está jugado
-        const result = await pool.request()
-            .input('id', sql.Int, id)
-            .query('SELECT estado FROM Partidos WHERE id_partido = @id');
-
-        if (result.recordset.length === 0) {
-            return res.status(404).json({ message: 'Partido no encontrado' });
-        }
-
-        if (result.recordset[0].estado === 'jugado') {
-            return res.status(400).json({
-                message: 'No se puede cambiar el estado de un partido finalizado'
-            });
-        }
-
-        // Actualizar estado
-        await pool.request()
-            .input('id', sql.Int, id)
-            .input('estado', sql.VarChar, estado)
-            .query(`
-                UPDATE Partidos
-                SET estado = @estado
-                WHERE id_partido = @id
-            `);
-
-        res.json({ message: 'Estado actualizado correctamente' });
-
-    } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor', error: error.message });
-    }
-};
 
 module.exports = {
   getEquipos,
   getPartidos,
   getTablaPosiciones,
-  updateGoles,
-  updateEstado
+  updateMatchResult
 };
