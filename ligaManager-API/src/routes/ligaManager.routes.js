@@ -12,6 +12,7 @@ const {
 // ==================== GET (Consultas) ====================
 
 // Obtener lista de todos los equipos
+// ligaManager/api/equipos
 router.get('/equipos', getEquipos);
 
 // Obtener lista de todos los partidos
@@ -23,7 +24,7 @@ router.get('/tabla-posiciones', getTablaPosiciones);
 
 // ==================== PUT (Actualizaciones) ====================
 
-//Actualizar cualquier campo del partido(resultado se visualizan auto en tblaposi x el view)
+//Actualizar cualquier campo del partido(resultado se visualizan auto en tablaposi x el view)
 router.put('/partidos/:matchId', updateMatchResult);
 
 module.exports = router;

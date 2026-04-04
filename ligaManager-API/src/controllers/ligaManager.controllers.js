@@ -7,7 +7,6 @@ const getEquipos = async(req, res) => {
         const pool = await poolPromise;
         const result = await pool
             .request()
-            // CAMBIA 'nombre' por 'id_equipo'
             .query('SELECT * FROM Equipos ORDER BY id_equipo ASC') 
         res.json(result.recordset)
     } catch(error) {
@@ -62,22 +61,25 @@ const getTablaPosiciones = async (req, res) => {
     }
 };
 
-//LOGICA PARA ACTUALIZAR GOLES (SOLO SI NO ESTA JUGADO) Y ESTADO
+
+//LOGICA PARA ACTUALIZAR GOLES (edo diefrente a jugado) Y EDO
 
 const updateMatchResult = async (req, res) => {
-  // Extraemos el ID de la URL (parámetros) y los datos del BODY
+  
   const { matchId } = req.params; 
   const { goles_local, goles_visitante, estado } = req.body;
 
-  // Validación: Si no hay datos, no hacemos nada
+  // Validación: Si no hay goles o edo, la funcion se detiene
   if (goles_local === undefined && goles_visitante === undefined && !estado) {
     return res.status(400).json({ message: 'No se enviaron datos para actualizar' });
   }
 
   try {
+
     const pool = await poolPromise;
 
     // 1. Verificamos si el partido existe y su estado actual
+
     const checkMatch = await pool.request()
       .input('id', sql.Int, matchId)
       .query('SELECT estado FROM Partidos WHERE id_partido = @id');
@@ -86,12 +88,12 @@ const updateMatchResult = async (req, res) => {
       return res.status(404).json({ message: 'Partido no encontrado' });
     }
 
-    // Si ya está 'jugado', podrías querer bloquear cambios (opcional)
+    // Si ya está 'jugado'
     if (checkMatch.recordset[0].estado === 'jugado' && estado === 'jugado') {
        return res.status(400).json({ message: 'El partido ya está finalizado' });
     }
 
-    // 2. Construcción del Query Dinámico
+    // 2. Construcción del Query Dinámico (nos permite actualizar solo un campo sin modificar los demas)
     let updates = [];
     const request = pool.request().input('id', sql.Int, matchId);
 
